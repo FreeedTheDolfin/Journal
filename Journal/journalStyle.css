@@ -1,0 +1,104 @@
+body {
+    background-color: #444444;
+    font-family: 'Quicksand', sans-serif;
+}
+h1 {
+    color: white
+}
+#loginBox {
+    background-color: rgba(255, 255, 255, 0.25);
+    width: 480px;
+    height: 360px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -180px 0 0 -240px;
+    border-radius: 4px;
+    text-align: center;
+}
+input[type=button]{
+    color: white;
+    background-color: #333333;
+    transition: .25s;
+    border: none;
+    margin: 4px 2px;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+input[type=button]:hover{
+    color: white;
+    background-color: #111111;
+    transition: .25s;
+}
+input[type=button]:focus{
+    color: white;
+    background-color: #111111;
+    transition: .25s;
+}
+input[type=button]:disabled {
+    filter: opacity(0)
+}
+input[type=text], input[type=password], textarea {
+    color: white;
+    background-color: #333333;
+    border: none;
+    margin: 4px 2px;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+input[type=text]:hover, input[type=password]:hover, textarea:hover {
+    color: white;
+    background-color: #111111;
+    transition: .25s;
+}
+input[type=text]:focus, input[type=password]:focus, textarea:focus {
+    color: white;
+    background-color: #111111;
+    transition: .25s;
+}
+#homeHead {
+    display: inline-block;
+    width: 100%;
+}
+#homeHeadL {
+    float: left;
+}
+#homeHeadR {
+    float: right;
+}
+#uploadSection {
+    color: white;
+    display: inline-block;
+    width: 100%;
+}
+textarea {
+    vertical-align: bottom;
+}
+table {
+    color: white;
+    border-collapse: collapse;
+    width: 100%;
+}
+td {
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+tr {
+    border-top: 1px solid #555555;
+    height: 150px;
+}
+.datecell {
+    width: 200px;
+}
+.namecell {
+    width: 100px;
+}
+select {
+    color: white;
+    background-color: #333333;
+    border: none;
+    margin: 4px 2px;
+    padding: 8px 16px;
+    border-radius: 4px;
+}

@@ -1,0 +1,190 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="journalstyle.css">
+        <meta charset="UTF-8">
+        <script>
+            var lang = 0;
+            function getData(sendData, callback, location) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        callback(JSON.parse(xhttp.responseText));
+                    }
+                };
+                xhttp.open("POST", location, true);
+                xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                xhttp.send(sendData);
+            }
+            function setCookie(cname, cvalue, exhours) {
+                var d = new Date();
+                d.setTime(d.getTime() + (exhours*60*60*1000));
+                var expires = "expires=" + d.toUTCString();
+                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            }
+            function getCookie(cname) {
+                var name = cname + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(";");
+                for(var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while(c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if(c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+            function loadEntries() {
+                getData("sessionToken=" + getCookie("sessionToken"),
+                (R)=>{
+                    if(R.error) {
+                            toLogin();
+                    }
+                    else {
+                        var entryData = "";
+                        entryData += "<table>";
+                        for(var i = R.length - 1; i >= 0; i--) {
+                            if(document.getElementById("userFilter").value != '') {
+                                if(document.getElementById("userFilter").value == R[i].USERNAME) {
+                                    entryData += "<tr>";
+                                    entryData += "<td class=\"namecell\">" + R[i].USERNAME + "</td>";
+                                    entryData += "<td class=\"datecell\">" + R[i].ENTRY_TIME + "</td>";
+                                    entryData += "<td>" + R[i].ENTRY_TEXT + "</td>";
+                                    if (window.localStorage.getItem('username') == R[i].USERNAME) {
+                                    if(lang == 0)
+                                        entryData += "<td><input type=\"button\" id=\"delete\" value=\"Delete\" onclick=\"deleteEntry('" + R[i].USERNAME + "', '" + R[i].ENTRY_TIME + "')\" style=\"float: right\"></td>";
+                                    if(lang == 1)
+                                        entryData += "<td><input type=\"button\" id=\"delete\" value=\"削除\" onclick=\"deleteEntry('" + R[i].USERNAME + "', '" + R[i].ENTRY_TIME + "')\" style=\"float: right\"></td>";
+                                    }
+                                    else {
+                                        entryData += "<td><input type=\"button\" value=\"Delete\" style=\"float: right\" disabled></td>";
+                                    }
+                                entryData += "</tr>";
+                                }   
+                            }
+                            else {
+                                entryData += "<tr>";
+                                entryData += "<td class=\"namecell\">" + R[i].USERNAME + "</td>";
+                                entryData += "<td class=\"datecell\">" + R[i].ENTRY_TIME + "</td>";
+                                entryData += "<td>" + R[i].ENTRY_TEXT + "</td>";
+                                if(R[i].IMG_ID != null) {
+                                    entryData += "<td class=\"datecell\"><img src=\"" + R[i].IMG_PATH + "\"></td>";
+                                }
+                                if (window.localStorage.getItem('username') == R[i].USERNAME) {
+                                    if(lang == 0)
+                                        entryData += "<td><input type=\"button\" id=\"delete\" value=\"Delete\" onclick=\"deleteEntry('" + R[i].USERNAME + "', '" + R[i].ENTRY_TIME + "')\" style=\"float: right\"></td>";
+                                    if(lang == 1)
+                                        entryData += "<td><input type=\"button\" id=\"delete\" value=\"削除\" onclick=\"deleteEntry('" + R[i].USERNAME + "', '" + R[i].ENTRY_TIME + "')\" style=\"float: right\"></td>";
+                                }
+                                else {
+                                    entryData += "<td><input type=\"button\" value=\"Delete\" style=\"float: right\" disabled></td>";
+                                }
+                                entryData += "</tr>";
+                            }
+                        }
+                        entryData += "</table>";
+                        document.getElementById("entries").innerHTML = entryData;
+                    }
+                },
+                "getEntries.php");
+            }
+            function toLogin() {
+                window.location.href = "journalLogin.html";
+            }
+            function postEntry() {
+                getData(
+                    "sessionToken=" + getCookie("sessionToken") +
+                    "&message=" + replaceEscapeSymbols(document.getElementById("inputText").value)
+                    ,
+                    (R)=>{
+
+                    },
+                    "addEntry.php"
+                );
+            }
+            function deleteEntry(username, entryTime) {
+                getData(
+                    "sessionToken=" + getCookie("sessionToken") +
+                    "&username=" + username +
+                    "&entryTime=" + entryTime,
+                    (R)=>{
+
+                    },
+                    "deleteEntry.php"
+                );
+            }
+            function replaceEscapeSymbols(data) {
+                return data;
+            }
+            function swapLang() {
+                if(lang == 0) {
+                    document.getElementById("logout").value = "ログアウト";
+                    document.getElementById("title").innerHTML = "家族日記";
+                    document.getElementById("post").value = "投稿";
+                    document.getElementById("delete").value = "削除";
+                    document.getElementById("filterTitle").innerHTML = "ユーザーによるフィルター:";
+                    lang = 1;
+                }
+                else {
+                    document.getElementById("logout").value = "Logout";
+                    document.getElementById("title").innerHTML = "Family Journal";
+                    document.getElementById("post").value = "Post";
+                    document.getElementById("delete").value = "Delete";
+                    document.getElementById("filterTitle").innerHTML = "Filter by User:";
+                    lang = 0;
+                }
+            }
+            function getUsers() {
+                getData(
+                    "sessionToken=" + getCookie("sessionToken"),
+                    (R)=>{
+                        if(R.error) {
+                            toLogin();
+                        }
+                        else {
+                            var userData = "<option value=\"\"></option>";
+                            for(var i = 0; i < R.length; i++) {
+                                if(R[i].VALID == 1) {
+                                    userData += "<option value=\"" + R[i].USERNAME + "\">" + R[i].USERNAME + "</option>";
+                                }
+                            }
+                            document.getElementById("userFilter").innerHTML = userData;
+                        }
+                    },
+                    "getUsers.php");
+            }
+            function tick() {
+                loadEntries();
+            }
+            function inIt() {
+                loadEntries();
+                getUsers();
+                window.setInterval(tick, 1000);
+            }
+            function logout() {
+                setCookie("sessionToken", "", -24);
+                window.location.href = "journalLogin.html";
+            }
+        </script>
+    </head>
+    <body onload="inIt()">
+        <div id="homeHead">
+            <div id="homeHeadL">
+               <h1 id="title" style="margin: 0px; padding: 10px">Family Journal</h1>
+            </div>
+            <div id="homeHeadR">
+               <input type="button" value="ENG/JP" onclick="swapLang()">
+                <input type="button" id="logout" value="Logout" onclick="logout()">
+             </div>
+        </div>
+        <div id="uploadSection">
+            <textarea id="inputText" style="resize: none; width: 25%; height: 150px"></textarea>
+            <input type="button" id="post" value="Post" onclick="postEntry()">
+            <span id="filterTitle">Filter by User:</span>
+            <select id="userFilter"></select>
+        </div>
+        <div id="entries"></div>
+    </body>
+</html>

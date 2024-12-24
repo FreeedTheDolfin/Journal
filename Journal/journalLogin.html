@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="journalStyle.css">
+        <meta charset="UTF-8">
+        <script>
+            function setCookie(cname, cvalue, exhours) {
+                var d = new Date();
+                d.setTime(d.getTime() + (exhours*60*60*1000));
+                var expires = "expires=" + d.toUTCString();
+                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            }
+            function getToken(user, pass) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        tokenData = JSON.parse(xhttp.responseText);
+                        if(!tokenData.error && tokenData.TOKEN != "ERROR") {
+                            setCookie("sessionToken", tokenData.TOKEN, 8);
+                            window.location.href = "journalHome.html";
+                        }
+                        else {
+                            document.getElementById("errormsg").innerHTML = "Incorrect username or password";
+                        }
+                    }
+                };
+                xhttp.open("POST", "journalLogin.php", true);
+                xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                xhttp.send("username=" + user + "&password=" + pass);
+            }
+            var lang = 0;
+            function swapLang() {
+                if(lang == 0) {
+                    document.getElementById("login").value = "ログイン";
+                    document.getElementById("title").innerHTML = "<br/>家族日記<br/>";
+                    document.getElementById("user").placeholder = "ユーザーネーム";
+                    document.getElementById("pass").placeholder = "パスワード";
+                    lang = 1;
+                }
+                else {
+                    document.getElementById("login").value = "Login";
+                    document.getElementById("title").innerHTML = "<br/>Family Journal<br/>";
+                    document.getElementById("user").placeholder = "Username";
+                    document.getElementById("pass").placeholder = "Password";
+                    lang = 0;
+                }
+            }
+            function login() {
+                window.localStorage.setItem('username', document.getElementById("user").value);
+                getToken(document.getElementById("user").value, document.getElementById("pass").value);
+            }
+        </script>
+    </head>
+    <body>
+        <div id="homeHead">
+            <div id="homeHeadR">
+               <input type="button" value="ENG/JP" onclick="swapLang()">
+             </div>
+        </div>
+        <div id="loginBox">
+             <h1 id="title">
+                 <br/>
+                 Family Journal
+                <br/>
+             </h1>
+            <input id="user" type="text" name="user" placeholder="Username" style="width: 240px"><br/>
+            <input id="pass" type="password" name="pass" placeholder="Password" style="width: 240px"><br/>
+            <input type="button" id="login" value="Login" onclick="login()" style="width: 240px" style="width: 240px"><br/>
+            <div id="errormsg"></div>
+        </div>
+    </body>
+</html>
